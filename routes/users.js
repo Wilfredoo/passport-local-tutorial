@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const flash = require("connect-flash");
+const session = require("express-session");
 
 const User = require("../models/User");
 
@@ -49,8 +51,19 @@ router.post("/register", (req, res) => {
         });
       } else {
         const newUser = new User({ name, email, password });
-        console.log(newUser);
-        res.send("oink");
+        bcrypt.genSalt(10, (err, salt) =>
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            // set password to hash
+            newUser.password = hash;
+
+            // save user
+            newUser.save().then(user => {
+              req.flash("success_msg", "You are now registered buddy");
+              res.redirect("/users/login");
+            });
+          })
+        );
       }
     });
   }

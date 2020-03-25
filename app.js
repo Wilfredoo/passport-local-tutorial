@@ -20,6 +20,25 @@ app.set("view engine", "ejs");
 // bodyparser
 app.use(express.urlencoded({ extended: false }));
 
+// express session middleware
+app.use(
+  session({
+    secret: "corona virus",
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
+//connect flash
+app.use(flash());
+
+//global vars
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
+  next();
+});
+
 // routes
 app.use("/", require("./routes/index"));
 app.use("/users", require("./routes/users"));
